@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - SleepCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Create Account</h2>
+            <p class="auth-subtitle">Register to use the sleep disorder predictor</p>
+
+            <form action="{{ url_for('signup') }}" method="POST">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="full_name" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Enter password" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirm_password" placeholder="Confirm password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width">Sign Up</button>
+            </form>
+
+            <p class="switch-link">
+                Already have an account?
+                <a href="{{ url_for('signin') }}">Sign In</a>
+            </p>
+
+            <p class="back-home">
+                <a href="{{ url_for('index') }}">← Back to Home</a>
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

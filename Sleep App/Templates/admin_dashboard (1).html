@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — SleepCare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #0a0f1e;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 48px;
+            background: rgba(10,15,30,0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(124,58,237,0.2);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(124,58,237,0.15);
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 50px;
+            padding: 6px 16px;
+            font-size: 13px;
+            color: #a78bfa;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            border-radius: 50px;
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239,68,68,0.22);
+        }
+
+        .main {
+            padding: 40px 48px 80px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .page-sub {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 36px;
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 28px 24px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #64748b;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 36px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 28px;
+        }
+
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #64748b;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #cbd5e1;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-apnea {
+            background: rgba(245,158,11,0.15);
+            color: #f59e0b;
+        }
+
+        .badge-insomnia {
+            background: rgba(236,72,153,0.15);
+            color: #ec4899;
+        }
+
+        .badge-health {
+            background: rgba(16,185,129,0.15);
+            color: #10b981;
+        }
+
+        .full-panel {
+            margin-bottom: 36px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">SleepCare</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+        <div class="admin-badge">🛡️ Admin Panel</div>
+        <a href="{{ url_for('admin_logout') }}" class="btn-logout">Logout</a>
+    </div>
+</header>
+
+<main class="main">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="page-sub">Overview of all users and predictions</p>
+
+    <div class="stat-cards">
+        <div class="stat-card">
+            <div class="label">Total Users</div>
+            <div class="value">{{ total_users }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="label">Total Predictions</div>
+            <div class="value">{{ total_predictions }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="label">Sleep Apnea Cases</div>
+            <div class="value" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                {{ predictions | selectattr('prediction', 'equalto', 'Sleep Apnea') | list | length }}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="label">Insomnia Cases</div>
+            <div class="value" style="background:linear-gradient(135deg,#ec4899,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                {{ predictions | selectattr('prediction', 'equalto', 'Insomnia') | list | length }}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="label">No Disease Cases</div>
+            <div class="value" style="background:linear-gradient(135deg,#10b981,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                {{ predictions | selectattr('prediction', 'equalto', 'No Disease') | list | length
+                 + predictions | selectattr('prediction', 'equalto', 'No disease') | list | length }}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="panel">
+            <div class="panel-title">📊 Prediction Distribution</div>
+            <div class="chart-wrap">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">👥 Registered Users</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Joined Date</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users | sort(attribute='id') %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '' }}</td>
+                            <td>{{ user.created_at.strftime('%I:%M:%S %p') if user.created_at else '' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel full-panel">
+        <div class="panel-title">🗂️ All Predictions</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Gender</th>
+                        <th>Age</th>
+                        <th>Occupation</th>
+                        <th>Sleep Dur.</th>
+                        <th>Stress</th>
+                        <th>BMI</th>
+                        <th>Prediction</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in predictions | sort(attribute='id') %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td>{{ p.full_name }}</td>
+                        <td>{{ p.gender }}</td>
+                        <td>{{ p.age }}</td>
+                        <td>{{ p.occupation }}</td>
+                        <td>{{ p.sleep_duration }}h</td>
+                        <td>{{ p.stress_level }}/10</td>
+                        <td>{{ p.bmi_category }}</td>
+                        <td>
+                            {% if p.prediction == 'Sleep Apnea' %}
+                                <span class="badge badge-apnea">Sleep Apnea</span>
+                            {% elif p.prediction == 'Insomnia' %}
+                                <span class="badge badge-insomnia">Insomnia</span>
+                            {% else %}
+                                <span class="badge badge-health">No Disease</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ p.created_at.strftime('%Y-%m-%d') if p.created_at else '' }}</td>
+                        <td>{{ p.created_at.strftime('%I:%M:%S %p') if p.created_at else '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    const labels = {{ chart_labels | tojson }};
+    const values = {{ chart_values | tojson }};
+
+    const colorMap = {
+        'Sleep Apnea': '#f59e0b',
+        'Insomnia': '#ec4899',
+        'No disease': '#10b981',
+        'No Disease': '#10b981'
+    };
+
+    const colors = labels.map(label => colorMap[label] || '#60a5fa');
+
+    new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: colors.map(c => c + '33'),
+                borderColor: colors,
+                borderWidth: 2,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#94a3b8',
+                        font: {
+                            family: 'DM Sans',
+                            size: 13
+                        },
+                        padding: 16,
+                        usePointStyle: true
+                    }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+</script>
+
+</body>
+</html>

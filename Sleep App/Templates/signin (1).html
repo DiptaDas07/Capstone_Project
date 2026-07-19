@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - SleepCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Welcome Back</h2>
+            <p class="auth-subtitle">Login to continue</p>
+
+            <form action="{{ url_for('signin') }}" method="POST">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width">Sign In</button>
+            </form>
+
+            <p class="switch-link">
+                Don't have an account?
+                <a href="{{ url_for('signup') }}">Sign Up</a>
+            </p>
+
+            <p class="back-home">
+                <a href="{{ url_for('index') }}">← Back to Home</a>
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

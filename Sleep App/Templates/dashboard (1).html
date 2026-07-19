@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SleepCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .welcome-user {
+            margin-bottom: 18px;
+            padding: 12px 16px;
+            background: #f8f9ff;
+            border-left: 4px solid #4a6cf7;
+            border-radius: 10px;
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .welcome-user span {
+            color: #4a6cf7;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="dashboard-navbar">
+        <div class="logo">SleepCare</div>
+        <div class="nav-links">
+            <a href="{{ url_for('predict') }}">Predict</a>
+            <a href="{{ url_for('dashboard') }}" class="active-link">Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
+
+    <main class="dashboard-wrapper">
+        <div class="dashboard-left">
+            <div class="dashboard-card">
+                <h2>Prediction History</h2>
+
+                <div class="welcome-user">
+                    Logged in as: <span>{{ user_name }}</span>
+                </div>
+
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Prediction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in history %}
+                        <tr>
+                            <td>{{ row.created_at }}</td>
+                            <td>{{ row.prediction }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-right">
+            <div class="dashboard-card">
+                <h2>Prediction Pie Chart</h2>
+                <canvas id="predictionChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const chartLabels = {{ chart_labels | tojson }};
+        const chartValues = {{ chart_values | tojson }};
+
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    data: chartValues,
+                    backgroundColor: [
+                        '#ff6384',
+                        '#36a2eb',
+                        '#ffce56'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+
+</body>
+</html>

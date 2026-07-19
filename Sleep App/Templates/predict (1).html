@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict - SleepCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .range-hint {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+            line-height: 1.7;
+        }
+        .range-hint .badge {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 11px;
+            margin-right: 3px;
+        }
+        .badge-bad      { background: #fdecea; color: #c0392b; }
+        .badge-moderate { background: #fff8e1; color: #e67e22; }
+        .badge-good     { background: #e8f5e9; color: #27ae60; }
+        .badge-info     { background: #f0f4ff; color: #4a6cf7; }
+
+        .convert-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 6px;
+            line-height: 1.8;
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 7px 10px;
+            border-left: 3px solid #4a6cf7;
+        }
+        .convert-hint b { color: #4a6cf7; }
+
+        .bmi-result-box {
+            margin-top: 8px;
+            padding: 9px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+        }
+        .bmi-normal      { background: #e8f5e9; color: #2e7d32; }
+        .bmi-underweight { background: #e3f2fd; color: #1565c0; }
+        .bmi-overweight  { background: #fff3e0; color: #e65100; }
+        .bmi-obese       { background: #fce4ec; color: #b71c1c; }
+
+        #bmi_display {
+            background: #f8f9ff !important;
+            cursor: not-allowed;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .welcome-user {
+            margin-bottom: 18px;
+            padding: 12px 16px;
+            background: #f8f9ff;
+            border-left: 4px solid #4a6cf7;
+            border-radius: 10px;
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .welcome-user span { color: #4a6cf7; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <header class="dashboard-navbar">
+        <div class="logo">SleepCare</div>
+        <div class="nav-links">
+            <a href="{{ url_for('predict') }}" class="active-link">Predict</a>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="form-card">
+            <h2>Sleep Disorder Prediction</h2>
+            <p class="page-subtitle">Fill in your information to get a prediction result.</p>
+
+            <div class="welcome-user">
+                Logged in as: <span>{{ user_name }}</span>
+            </div>
+
+            <form action="{{ url_for('predict') }}" method="POST" class="predict-form">
+                <div class="form-grid">
+
+                    <!-- Gender -->
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+
+                    <!-- Age -->
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" name="age" min="18" max="90"
+                            placeholder="Enter age" required>
+                        <p class="range-hint">
+                            (Range: <span class="badge badge-info">18 – 90 years</span>)
+                        </p>
+                    </div>
+
+                    <!-- Occupation -->
+                    <div class="form-group">
+                        <label>Occupation</label>
+                        <select name="occupation" required>
+                            <option value="">Select Occupation</option>
+                            <option value="Accountant">Accountant</option>
+                            <option value="Doctor">Doctor</option>
+                            <option value="Engineer">Engineer</option>
+                            <option value="Lawyer">Lawyer</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Manual Labor">Manual Labor</option>
+                            <option value="Nurse">Nurse</option>
+                            <option value="Office Worker">Office Worker</option>
+                            <option value="Retired">Retired</option>
+                            <option value="Sales Representative">Sales Representative</option>
+                            <option value="Salesperson">Salesperson</option>
+                            <option value="Scientist">Scientist</option>
+                            <option value="Software Engineer">Software Engineer</option>
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher</option>
+                        </select>
+                    </div>
+
+                    <!-- Sleep Duration -->
+                    <div class="form-group">
+                        <label>Average Sleep Duration of Last 10 Days (hours)</label>
+                        <input type="number" name="sleep_duration" min="4.1" max="12.0"
+                            step="0.1" placeholder="Enter average sleep duration" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-bad">4.1 – 5.9 hrs = Poor</span>
+                            <span class="badge badge-moderate">6 – 6.9 hrs = Moderate</span>
+                            <span class="badge badge-good">7 – 12 hrs = Good</span>)
+                        </p>
+                    </div>
+
+                    <!-- Quality of Sleep -->
+                    <div class="form-group">
+                        <label>Quality of Sleep</label>
+                        <input type="number" name="quality_of_sleep" min="1" max="10"
+                            placeholder="Rate from 1 to 10" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-bad">1 – 4 = Very Poor</span>
+                            <span class="badge badge-moderate">5 – 6 = Moderate</span>
+                            <span class="badge badge-good">7 – 10 = Good to Excellent</span>)
+                        </p>
+                    </div>
+
+                    <!-- Physical Activity Level -->
+                    <div class="form-group">
+                        <label>Physical Activity Level</label>
+                        <input type="number" name="physical_activity_level" min="10" max="120"
+                            placeholder="Enter activity level" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-bad">10 – 29 min = Low</span>
+                            <span class="badge badge-moderate">30 – 59 min = Moderate</span>
+                            <span class="badge badge-good">60 – 120 min = Active</span>)
+                        </p>
+                    </div>
+
+                    <!-- Stress Level -->
+                    <div class="form-group">
+                        <label>Stress Level</label>
+                        <input type="number" name="stress_level" min="1" max="10"
+                            placeholder="Rate from 1 to 10" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-good">1 – 3 = Low Stress</span>
+                            <span class="badge badge-moderate">4 – 6 = Moderate</span>
+                            <span class="badge badge-bad">7 – 10 = High Stress</span>)
+                        </p>
+                    </div>
+
+                    <!-- Weight -->
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="weight_kg" name="weight_kg"
+                            min="20" max="300" step="0.1"
+                            placeholder="e.g. 70" required
+                            oninput="calculateBMI()">
+                        <p class="range-hint">
+                            (Enter body weight in kilograms — e.g. <span class="badge badge-info">70 kg</span>)
+                        </p>
+                    </div>
+
+                    <!-- Height -->
+                    <div class="form-group">
+                        <label>Height (meters)</label>
+                        <input type="number" id="height_m" name="height_m"
+                            min="1.00" max="2.50" step="0.01"
+                            placeholder="e.g. 1.65" required
+                            oninput="calculateBMI()">
+                        <div class="convert-hint">
+                            📏 <b>Feet → Meters conversion:</b><br>
+                            1 foot = <b>0.3048 m</b> &nbsp;|&nbsp; 1 inch = <b>0.0254 m</b><br>
+                            5 ft 0 in = <b>1.52 m</b> &nbsp;|&nbsp; 5 ft 4 in = <b>1.63 m</b><br>
+                            5 ft 7 in = <b>1.70 m</b> &nbsp;|&nbsp; 5 ft 10 in = <b>1.78 m</b><br>
+                            6 ft 0 in = <b>1.83 m</b> &nbsp;|&nbsp; 6 ft 2 in = <b>1.88 m</b>
+                        </div>
+                    </div>
+
+                    <!-- BMI Auto-calculated -->
+                    <div class="form-group">
+                        <label>
+                            BMI Category
+                            <span style="color:#4a6cf7;font-size:11px;font-weight:400;">
+                                (Auto-calculated from Weight &amp; Height)
+                            </span>
+                        </label>
+                        <input type="text" id="bmi_display"
+                            placeholder="Enter Weight & Height above"
+                            readonly>
+                        <input type="hidden" name="bmi_category" id="bmi_category_hidden">
+                        <div id="bmi_result_box" class="bmi-result-box"></div>
+                        <p class="range-hint" id="bmi_formula_hint"></p>
+                    </div>
+
+                    <!-- Heart Rate -->
+                    <div class="form-group">
+                        <label>Heart Rate (bpm)</label>
+                        <input type="number" name="heart_rate" min="50" max="100"
+                            placeholder="Enter heart rate" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-good">50 – 69 bpm = Excellent</span>
+                            <span class="badge badge-moderate">70 – 79 bpm = Normal</span>
+                            <span class="badge badge-bad">80 – 100 bpm = Elevated</span>)
+                        </p>
+                    </div>
+
+                    <!-- Daily Steps -->
+                    <div class="form-group">
+                        <label>Daily Steps</label>
+                        <input type="number" name="daily_steps" min="2000" max="20000"
+                            placeholder="Enter daily steps" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-bad">2,000 – 4,999 = Sedentary</span>
+                            <span class="badge badge-moderate">5,000 – 7,999 = Moderate</span>
+                            <span class="badge badge-good">8,000 – 20,000 = Active</span>)
+                        </p>
+                    </div>
+
+                    <!-- Systolic -->
+                    <div class="form-group">
+                        <label>Systolic (Blood Pressure)</label>
+                        <input type="number" name="systolic" min="109" max="145"
+                            placeholder="Enter systolic value" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-good">109 – 119 = Normal</span>
+                            <span class="badge badge-moderate">120 – 129 = Elevated</span>
+                            <span class="badge badge-bad">130 – 145 = High</span>)
+                        </p>
+                    </div>
+
+                    <!-- Diastolic -->
+                    <div class="form-group">
+                        <label>Diastolic (Blood Pressure)</label>
+                        <input type="number" name="diastolic" min="60" max="96"
+                            placeholder="Enter diastolic value" required>
+                        <p class="range-hint">
+                            (<span class="badge badge-good">60 – 79 = Normal</span>
+                            <span class="badge badge-moderate">80 – 89 = Elevated</span>
+                            <span class="badge badge-bad">90 – 96 = High</span>)
+                        </p>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width"
+                    onclick="return validateBMI()">Predict</button>
+            </form>
+
+            {% if prediction %}
+            <div class="result-box">
+                <h3>Prediction Result</h3>
+                <p><strong>{{ prediction }}</strong></p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight_kg').value);
+            const height = parseFloat(document.getElementById('height_m').value);
+
+            const display   = document.getElementById('bmi_display');
+            const hidden    = document.getElementById('bmi_category_hidden');
+            const resultBox = document.getElementById('bmi_result_box');
+            const formulaEl = document.getElementById('bmi_formula_hint');
+
+            if (!weight || !height || height <= 0 || isNaN(weight) || isNaN(height)) {
+                display.value           = '';
+                hidden.value            = '';
+                resultBox.style.display = 'none';
+                formulaEl.innerHTML     = '';
+                return;
+            }
+
+            const bmi        = weight / (height * height);
+            const bmiRounded = bmi.toFixed(1);
+
+            let category = '';
+            let cssClass  = '';
+            let emoji     = '';
+
+            if (bmi < 18.5) {
+                category = 'Underweight';
+                cssClass  = 'bmi-underweight';
+                emoji     = '🔵';
+            } else if (bmi < 25.0) {
+                category = 'Normal Weight';
+                cssClass  = 'bmi-normal';
+                emoji     = '✅';
+            } else if (bmi < 30.0) {
+                category = 'Overweight';
+                cssClass  = 'bmi-overweight';
+                emoji     = '🟠';
+            } else {
+                category = 'Obese';
+                cssClass  = 'bmi-obese';
+                emoji     = '🔴';
+            }
+
+            display.value = category;
+            hidden.value  = category;
+
+            resultBox.className     = 'bmi-result-box ' + cssClass;
+            resultBox.style.display = 'block';
+            resultBox.innerHTML     = emoji + ' BMI = <b>' + bmiRounded + '</b> → ' + category;
+
+            formulaEl.innerHTML =
+                '(' + weight + ' ÷ ' + height + '² = <span style="color:#4a6cf7;font-weight:600;">' + bmiRounded + '</span>)';
+        }
+
+        function validateBMI() {
+            const hidden = document.getElementById('bmi_category_hidden').value;
+            if (!hidden) {
+                alert('Please enter your Weight and Height so BMI can be calculated automatically.');
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+</html>
